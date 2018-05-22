@@ -82,13 +82,11 @@ namespace.tendrl:
       version: 1
     UnmanageCluster:
       tags:
-        - "tendrl/monitor"
+        - "tendrl/integration/$TendrlContext.integration_id"
       atoms:
-        - tendrl.objects.Cluster.atoms.SetClusterUnmanaged
-        - tendrl.objects.Cluster.atoms.StopMonitoringServices
-        - tendrl.objects.Cluster.atoms.StopIntegrationServices
-        - tendrl.objects.Cluster.atoms.DeleteMonitoringDetails
-        - tendrl.objects.Cluster.atoms.DeleteClusterDetails
+        - tendrl.objects.Node.atoms.StopMonitoringServices
+        - tendrl.objects.Node.atoms.StopIntegrationServices
+        - tendrl.objects.Cluster.atoms.UnmanageCluster
       help: "Unmanage a Gluster Cluster"
       enabled: true
       inputs:
@@ -136,46 +134,6 @@ namespace.tendrl:
           type: Update
           uuid: 333c3333-3c33-33c3-333c-c33cc34444cc
           help: setup cluster alias in graphite
-        StopMonitoringServices:
-          enabled: true
-          inputs:
-            mandatory:
-              - TendrlContext.integration_id
-          name: stop node services
-          run: tendrl.objects.Cluster.atoms.StopNodeServices
-          type: Update
-          uuid: 333c3333-3c33-33c3-333c-c33cc3c4444c
-          help: Stop node services
-        StopIntegrationServices:
-          enabled: true
-          inputs:
-            mandatory:
-              - TendrlContext.integration_id
-          name: stop node services
-          run: tendrl.objects.Cluster.atoms.StopNodeServices
-          type: Update
-          uuid: 333c3333-3c33-33c3-333c-c33cc3c4444d
-          help: Stop node services
-        DeleteClusterDetails:
-          enabled: True
-          inputs:
-            mandatory:
-              - TendrlContext.integration_id
-          name: clear cluster details
-          run: tendrl.objects.Cluster.atoms.ClearClusterDetails
-          type: Update
-          uuid: 333c3333-3c33-33c3-333c-c33cc3c5555c
-          help: Clear cluster details
-        DeleteMonitoringDetails:
-          enabled: True
-          inputs:
-            mandatory:
-              - TendrlContext.integration_id
-          name: Clear monitoring data
-          run: tendrl.objects.Cluster.atoms.ClearMonitoringData
-          type: Update
-          uuid: 333c3333-3c33-33c3-333c-c33cc3c6666c
-          help: Clear monitoring data
         SetClusterUnmanaged:
           enabled: True
           inputs:
@@ -234,6 +192,16 @@ namespace.tendrl:
           type: Create
           uuid: 452f6190-9b37-11e6-950d-a24fc0d9649c
           help: Import the cluster
+        UnmanageCluster:
+          enabled: true
+          inputs:
+            mandatory:
+              - TendrlContext.integration_id
+          name: unmanage cluster
+          run: tendrl.objects.Cluster.atoms.UnmanageCluster
+          type: Update
+          uuid: 452f6190-9b37-11e6-960d-a25fc0d9649c
+          help: Unmanage the cluster
         CheckClusterAvailable:
           enabled: true
           inputs:
@@ -926,6 +894,26 @@ namespace.tendrl:
           type: check
           uuid: 2f94a48a-05d7-408c-b400-e27827f4edca
           version: 1
+        StopMonitoringServices:
+          enabled: true
+          inputs:
+            mandatory:
+              - TendrlContext.integration_id
+          name: stop node services
+          run: tendrl.objects.Node.atoms.StopMonitoringServices
+          type: Update
+          uuid: 333c3333-3c33-33c3-333c-c76cc3c4444c
+          help: Stop node services
+        StopIntegrationServices:
+          enabled: true
+          inputs:
+            mandatory:
+              - TendrlContext.integration_id
+          name: stop node services
+          run: tendrl.objects.Node.atoms.StopIntegrationServices
+          type: Update
+          uuid: 333c3333-3c33-33c3-333c-c77cc3c4444d
+          help: Stop node services
         Cmd:
           enabled: true
           inputs:
@@ -1132,7 +1120,7 @@ namespace.tendrl:
           help: "ID of child jobs created by this job"
           type: List
         output:
-          help: output of the job execution
+          help: output of the job executionStopMonitoringServices
           type: dict
         timeout:
           help: Job is timed out after 10 mins if yes
