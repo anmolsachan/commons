@@ -87,8 +87,8 @@ class UnmanageCluster(objects.BaseAtom):
                     flow_id=self.parameters['flow_id']
                 )
                 loop_count = 0
-                # Wait for (no of nodes) * 6 minutes for unmanage to complete
-                wait_count = (len(node_list) - 1) * 36
+                # Wait for (no of nodes) * 1 minute for unmanage to complete
+                wait_count = (len(node_list) - 1) * 6
                 while True:
                     parent_job = NS.tendrl.objects.Job(
                         job_id=self.parameters['job_id']
