@@ -7,5 +7,7 @@ class StopMonitoringServices(objects.BaseAtom):
         super(StopMonitoringServices, self).__init__(*args, **kwargs)
 
     def run(self):
-        services = ["collectd"]
-        return service_utils.stop_service(services, self.parameters)
+        return service_utils.stop_service(
+            ["collectd"],
+            self.parameters
+        )

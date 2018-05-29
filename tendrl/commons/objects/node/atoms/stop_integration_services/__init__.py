@@ -7,5 +7,7 @@ class StopIntegrationServices(objects.BaseAtom):
         super(StopIntegrationServices, self).__init__(*args, **kwargs)
 
     def run(self):
-        services = ["tendrl-gluster-integration"]
-        return service_utils.stop_service(services, self.parameters)
+        return service_utils.stop_service(
+            ["tendrl-gluster-integration"],
+            self.parameters
+        )
