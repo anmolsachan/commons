@@ -111,7 +111,7 @@ class UnmanageCluster(flows.BaseFlow):
                     time.sleep(5)
                     finished = True
                     job = NS.tendrl.objects.Job(job_id=_job_id).load()
-                    if job.status != "finished":
+                    if job.status not in ['finished', 'failed']:
                         finished = False
                     if finished:
                         break

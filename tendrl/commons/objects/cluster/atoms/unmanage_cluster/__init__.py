@@ -112,7 +112,7 @@ class UnmanageCluster(objects.BaseAtom):
                         child_job = NS.tendrl.objects.Job(
                             job_id=child_job_id
                         ).load()
-                        if child_job.status != "finished":
+                        if child_job.status not in ['finished', 'failed']:
                             finished = False
                             break
                     if finished:
