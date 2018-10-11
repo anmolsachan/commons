@@ -1,14 +1,17 @@
+import datetime
 import etcd
 import json
 import re
 import sys
 import traceback
+import uuid
 
 
 from tendrl.commons import flows
 from tendrl.commons.flows.exceptions import FlowExecutionFailedError
 from tendrl.commons.objects import AtomExecutionFailedError
 from tendrl.commons.utils import etcd_utils
+from tendrl.commons.utils import log_utils as logger
 
 
 class ImportCluster(flows.BaseFlow):
@@ -109,6 +112,54 @@ class ImportCluster(flows.BaseFlow):
                 _cluster.current_job['status'] = "finished"
                 _cluster.is_managed = "yes"
                 _cluster.save()
+
+                # Creating a job to enable/disable profiling based on flag
+                # selected while import flow. This job is separate from
+                # import flow and not a child flow. This could be tracked
+                # independently once import if over.
+                if _cluster.volume_profiling_flag != "leave-as-is":
+                    # Possible  cluster.volume_profiling_state are enabled,
+                    # disabled and mixed
+                    # Possible cluster.volume_profiling_flag are enable,
+                    # disable and leave-as-is.
+                    # Below we compare the given above ( state and flag)
+                    if (_cluster.volume_profiling_state !=
+                            _cluster.volume_profiling_flag + "d"):
+                        _job_id = str(uuid.uuid4())
+                        params = {"TendrlContext."
+                                  "integration_id":
+                                      NS.tendrl_context.integration_id,
+                                  "Cluster.volume_profiling_flag":
+                                      _cluster.volume_profiling_flag
+                                  }
+                        payload = {"tags": ["provisioner/%s" %
+                                            NS.tendrl_context.integration_id],
+                                   "run": "gluster.flows.EnableDisableVolume"
+                                          "Profiling",
+                                   "status": "new",
+                                   "parameters": params,
+                                   "type": "sds",
+                                   "created_at": (datetime.datetime.
+                                                  utcnow().strftime
+                                                  ('%Y-%m-%d %H:%M:%SZ')),
+                                   "created_from": "BackendFlow"
+                                   }
+                        NS.tendrl.objects.Job(
+                            job_id=_job_id,
+                            status="new",
+                            payload=payload
+                        ).save()
+                        logger.log(
+                            "info",
+                            NS.publisher_id,
+                            {"message": "Created job ( %s ) for profiling. "
+                                        "The job could be tracked independent"
+                                        "ly once this import job is completed"
+                                        "." % _job_id},
+                            job_id=self.parameters['job_id'],
+                            flow_id=self.parameters['flow_id']
+                        )
+
         except (FlowExecutionFailedError,
                 AtomExecutionFailedError,
                 Exception) as ex:
